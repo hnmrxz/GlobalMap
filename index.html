@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>GlobeMap · Sentinel-2 最新影像检索</title>
+<meta name="description" content="免费查看哨兵 2 号（Sentinel-2）最新卫星影像：选择区域与时间，浏览 10 米分辨率真彩影像，支持手机与电脑。" />
+<meta name="theme-color" content="#0b1220" />
+<meta name="color-scheme" content="dark light" />
+<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://tiles.maps.eox.at" crossorigin />
+<link rel="preconnect" href="https://earth-search.aws.element84.com" crossorigin />
+<link rel="preconnect" href="https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com" crossorigin />
+<link rel="preconnect" href="https://titiler.xyz" crossorigin />
+<style>
+  /* 首屏关键样式：保证 JS 到达前就有正确的骨架与配色，避免白屏/闪跳 */
+  :root{--bg:#0b1220;--fg:#e8eef7;--muted:#93a4bd;--line:#22304a;--accent:#38bdf8}
+  @media (prefers-color-scheme: light){:root{--bg:#f5f7fb;--fg:#0f172a;--muted:#5b6b85;--line:#dde5f0;--accent:#0369a1}}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+  #app{height:100vh;height:100dvh;display:grid;grid-template-rows:52px 1fr auto}
+  .gm-top{display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line)}
+  .gm-main{position:relative;min-height:0;display:grid;grid-template-columns:360px 1fr}
+  .gm-map{position:absolute;inset:0;background:linear-gradient(160deg,#111a2b,#0b1220)}
+  .gm-boot{position:fixed;inset:0;display:grid;place-items:center;gap:12px;background:var(--bg);z-index:9999;transition:opacity .25s}
+  .gm-boot-bar{width:132px;height:3px;border-radius:3px;background:var(--line);overflow:hidden}
+  .gm-boot-bar::after{content:"";display:block;width:40%;height:100%;background:var(--accent);animation:gmload 1s ease-in-out infinite}
+  @keyframes gmload{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+  @media (max-width:767px){.gm-main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app" data-sheet="peek">
+  <header class="gm-top">
+    <div class="gm-brand" title="GlobeMap">
+      <span class="gm-brand-dot" aria-hidden="true"></span>
+      <span class="gm-brand-name">GlobeMap</span>
+      <span class="gm-brand-sub">Sentinel-2 影像</span>
+    </div>
+    <div class="gm-searchslot" id="mount-search"></div>
+    <div class="gm-topact">
+      <select id="sel-base" class="gm-sel" aria-label="选择底图"></select>
+      <button id="btn-locate" class="gm-icon" type="button" title="定位到我的位置" aria-label="定位到我的位置">◎</button>
+      <button id="btn-share" class="gm-icon" type="button" title="复制当前画面链接" aria-label="复制当前画面链接">⧉</button>
+      <button id="btn-about" class="gm-icon" type="button" title="关于与数据来源" aria-label="关于与数据来源">i</button>
+    </div>
+  </header>
+
+  <main class="gm-main">
+    <aside class="gm-sheet" id="sheet" aria-label="检索条件与结果">
+      <button class="gm-grab" id="sheet-grab" type="button" aria-label="展开或收起面板"><span></span></button>
+      <div class="gm-sheet-body">
+        <div id="mount-filters" class="gm-filters"></div>
+        <div id="mount-list" class="gm-list"></div>
+      </div>
+    </aside>
+
+    <section class="gm-mapwrap" aria-label="卫星影像地图">
+      <div id="map" class="gm-map"></div>
+      <div class="gm-tools">
+        <button id="btn-draw" class="gm-tool" type="button" title="框选区域检索" aria-label="框选区域检索">▣</button>
+        <button id="btn-reset" class="gm-tool" type="button" title="回到最新影像" aria-label="回到最新影像">⟲</button>
+      </div>
+      <div id="mount-banner" class="gm-banner-host"></div>
+    </section>
+  </main>
+
+  <footer class="gm-rail" id="mount-rail" aria-label="时间轴"></footer>
+  <div id="mount-detail"></div>
+  <div id="mount-modal"></div>
+  <div id="mount-toast" class="gm-toastwrap" aria-live="polite"></div>
+</div>
+
+<div class="gm-boot" id="boot">
+  <div class="gm-boot-bar"></div>
+  <div style="font-size:12px;color:#93a4bd">正在准备卫星影像…</div>
+</div>
+
+<noscript>
+  <p style="padding:24px;font:14px/1.6 sans-serif">本应用需要 JavaScript 才能加载卫星影像。</p>
+</noscript>
+
+<script type="module" src="./src/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "globlemap",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Sentinel-2 最新影像检索 — 纯前端、零 API Key、中文界面、移动端自适应",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "smoke": "node tools/smoke.mjs http://localhost:4173/",
+    "interact": "node tools/interact.mjs http://localhost:4173/"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.12",
+    "playwright-core": "^1.65.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  }
+}

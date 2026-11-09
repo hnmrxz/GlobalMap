@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b10">
+<title>GlobeMap · Sentinel-2 最新卫星影像检索</title>
+<meta name="description" content="免费、免注册，查看最新的 Sentinel-2（哨兵2）10 米卫星影像。拖到哪里就看哪里，支持手机与电脑。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23070b10'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%234cc9f0' stroke-width='3'/%3E%3Cellipse cx='32' cy='32' rx='29' ry='10' fill='none' stroke='%234cc9f0' stroke-width='2' opacity='.55'/%3E%3Ccircle cx='32' cy='32' r='4' fill='%234cc9f0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://tiles.maps.eox.at" crossorigin>
+<link rel="preconnect" href="https://earth-search.aws.element84.com" crossorigin>
+<link rel="preconnect" href="https://titiler.xyz" crossorigin>
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+
+  <div id="map" role="application" aria-label="卫星影像地图"></div>
+
+  <!-- ============ 顶栏 ============ -->
+  <header class="gm-topbar">
+    <div class="gm-brand">
+      <span class="gm-brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="8.2"/><ellipse cx="12" cy="12" rx="10.5" ry="4.2" opacity=".6"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="gm-brand-text">GlobeMap<em>Sentinel-2 影像</em></span>
+    </div>
+
+    <form class="gm-search" id="search-form" autocomplete="off">
+      <svg class="gm-search-ico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4" stroke-linecap="round"/>
+      </svg>
+      <input id="search-input" type="search" placeholder="搜索地名，或输入坐标 39.90,116.40" aria-label="搜索地名或坐标">
+      <button type="button" class="gm-search-clear" id="search-clear" aria-label="清空搜索" hidden>&times;</button>
+      <div class="gm-suggest" id="suggest" hidden role="listbox"></div>
+    </form>
+
+    <div class="gm-actions">
+      <button class="gm-btn gm-btn--only-mobile" id="btn-msearch" aria-label="搜索">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4" stroke-linecap="round"/></svg>
+      </button>
+      <div class="gm-menu-wrap gm-btn--desk">
+        <button class="gm-btn" id="btn-basemap" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5" opacity=".65"/></svg>
+          <span class="gm-btn-t">底图</span>
+        </button>
+        <div class="gm-menu" id="menu-basemap" hidden>
+          <button data-bm="eox" class="is-on">Sentinel-2 无云镶嵌<small>2025 年度 · 10 m</small></button>
+          <button data-bm="carto">浅色矢量底图<small>CarTO · 带注记</small></button>
+          <button data-bm="osm">OpenStreetMap<small>标准地图</small></button>
+          <button data-bm="none">不显示底图<small>只看单景影像</small></button>
+        </div>
+      </div>
+      <button class="gm-btn gm-btn--desk" id="btn-share">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="17.5" cy="6" r="2.6"/><circle cx="6.5" cy="12" r="2.6"/><circle cx="17.5" cy="18" r="2.6"/><path d="m8.8 10.7 6.4-3.4M8.8 13.3l6.4 3.4"/></svg>
+        <span class="gm-btn-t">分享</span>
+      </button>
+      <button class="gm-btn gm-btn--desk" id="btn-about"><span class="gm-btn-t">关于</span></button>
+      <button class="gm-btn gm-btn--only-mobile" id="btn-panel" aria-label="打开检索面板">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ 状态条 ============ -->
+  <div class="gm-banner" id="banner" hidden>
+    <span class="gm-banner-text" id="banner-text"></span>
+    <button class="gm-banner-act" id="banner-act" hidden></button>
+    <button class="gm-banner-x" id="banner-x" aria-label="关闭提示">&times;</button>
+  </div>
+
+  <!-- ============ 左侧检索面板 / 移动端底部抽屉 ============ -->
+  <aside class="gm-panel" id="panel" aria-label="检索条件与结果">
+    <div class="gm-grip" id="sheet-grip" aria-hidden="true"><span></span></div>
+
+    <div class="gm-panel-head">
+      <div class="gm-panel-sum" id="panel-sum">
+        <b id="sum-count">—</b>
+        <span id="sum-sub">正在检索…</span>
+      </div>
+      <button class="gm-icon-btn" id="btn-collapse" aria-label="收起面板">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="gm-filters">
+      <div class="gm-field">
+        <div class="gm-field-label">时间范围</div>
+        <div class="gm-seg" id="range-seg" role="group" aria-label="时间范围">
+          <button data-days="7">近 7 天</button>
+          <button data-days="30">30 天</button>
+          <button data-days="90" class="is-on">90 天</button>
+          <button data-days="365">1 年</button>
+        </div>
+      </div>
+
+      <div class="gm-field">
+        <div class="gm-field-label">
+          整景云量
+          <b class="gm-cloud-val" id="cloud-val">≤ 20%</b>
+        </div>
+        <input type="range" id="cloud-range" min="0" max="100" step="5" value="20" aria-label="整景云量上限">
+        <p class="gm-hint">云量为整景平均，目标区域仍可能被云遮挡</p>
+      </div>
+
+        <div class="gm-row">
+          <label class="gm-check">
+            <input type="checkbox" id="only-2a">
+            <span>仅 Sentinel-2A</span>
+          </label>
+          <div class="gm-row-acts">
+            <button class="gm-linkbtn" id="btn-detail" title="查看所选影像的详情与下载入口">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2" stroke-linecap="round"/></svg>
+              详情
+            </button>
+            <button class="gm-linkbtn" id="btn-refresh" title="重新检索">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 6M20 5v6h-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              刷新
+            </button>
+          </div>
+        </div>
+    </div>
+
+    <div class="gm-list" id="scene-list" role="listbox" aria-label="影像场景列表"></div>
+
+    <div class="gm-empty" id="empty" hidden>
+      <b>该区域没有符合条件的影像</b>
+      <p>可以试试下面几种方式：</p>
+      <div class="gm-empty-acts">
+        <button data-fix="cloud">放宽云量到 60%</button>
+        <button data-fix="year">延长到近 1 年</button>
+        <button data-fix="close">缩小检索范围</button>
+      </div>
+    </div>
+
+    <div class="gm-foot">
+      <span id="foot-note">数据：Copernicus Sentinel-2 · AWS Earth Search</span>
+      <div class="gm-foot-links">
+        <button data-act="basemap">底图</button>
+        <button data-act="share">分享</button>
+        <button data-act="about">关于</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ 地图工具 ============ -->
+  <div class="gm-mapctl" id="mapctl">
+    <button data-act="zin" aria-label="放大">+</button>
+    <button data-act="zout" aria-label="缩小">−</button>
+    <div class="gm-mapctl-sep"></div>
+    <button data-act="locate" aria-label="定位到我的位置" title="定位到我的位置">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="7.5"/></svg>
+    </button>
+    <button data-act="box" aria-label="框选检索区域" title="框选检索区域">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 2.5"/></svg>
+    </button>
+    <button data-act="full" aria-label="全屏" title="全屏">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="gm-hintbar" id="hintbar" hidden></div>
+
+  <div class="gm-toast" id="toast" hidden></div>
+
+  <!-- ============ 详情 / 关于 ============ -->
+  <div class="gm-modal" id="modal" hidden>
+    <div class="gm-modal-backdrop" data-close></div>
+    <div class="gm-modal-card" id="modal-card" role="dialog" aria-modal="true">
+      <button class="gm-modal-close" data-close aria-label="关闭">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ 启动遮罩 ============ -->
+  <div class="gm-boot" id="boot">
+    <div class="gm-boot-inner">
+      <div class="gm-boot-ring"></div>
+      <div class="gm-boot-title">GlobeMap</div>
+      <div class="gm-boot-sub" id="boot-sub">正在连接 Sentinel-2 影像库…</div>
+    </div>
+  </div>
+
+</div>
+
+<noscript><p style="padding:24px;color:#fff;background:#070b10;font:14px sans-serif">本页面需要启用 JavaScript 才能显示卫星地图。</p></noscript>
+
+<script src="vendor/leaflet.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

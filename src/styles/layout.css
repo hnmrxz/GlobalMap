@@ -1,0 +1,348 @@
+/* 三套布局：桌面（≥1024）/ 平板（768–1023）/ 手机（<768） */
+
+#app {
+  display: grid;
+  grid-template-rows: var(--top-h) 1fr var(--rail-h);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ---------- 顶栏 ---------- */
+.gm-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-1);
+  z-index: 800;
+}
+
+.gm-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  user-select: none;
+}
+
+.gm-brand-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 32%, #7dd3fc, #0ea5e9 45%, #0b3a5b 100%);
+  box-shadow: 0 0 0 1px var(--line-2), 0 0 12px rgba(56, 189, 248, 0.45);
+}
+
+.gm-brand-name {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.gm-brand-sub {
+  font-size: 11px;
+  color: var(--fg-3);
+  padding-left: 2px;
+  border-left: 1px solid var(--line-2);
+  margin-left: 2px;
+}
+
+.gm-searchslot {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 460px;
+}
+
+.gm-topact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex: none;
+}
+
+/* ---------- 主体 ---------- */
+.gm-main {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--panel-w) 1fr;
+  position: relative;
+}
+
+.gm-sheet {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-1);
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.gm-grab {
+  display: none;
+}
+
+.gm-sheet-body {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 8px;
+}
+
+.gm-filters {
+  flex: none;
+}
+
+.gm-list {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.gm-mapwrap {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+
+.gm-map {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 30% 10%, #16233a 0%, #0a101c 70%);
+}
+
+.gm-tools {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 500;
+}
+
+.gm-banner-host {
+  position: absolute;
+  left: 12px;
+  right: 64px;
+  top: 12px;
+  z-index: 600;
+  pointer-events: none;
+}
+
+.gm-banner-host > * {
+  pointer-events: auto;
+}
+
+/* ---------- 底部时间轴 ---------- */
+.gm-rail {
+  border-top: 1px solid var(--line);
+  background: var(--bg-1);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  overflow: hidden;
+}
+
+/* ---------- 平板 ---------- */
+@media (max-width: 1023px) and (min-width: 768px) {
+  :root {
+    --panel-w: 300px;
+  }
+  .gm-brand-sub {
+    display: none;
+  }
+}
+
+/* ---------- 手机：地图全屏 + 底部抽屉 ---------- */
+@media (max-width: 767px) {
+  #app {
+    grid-template-rows: var(--top-h) 1fr 0;
+  }
+
+  .gm-main {
+    grid-template-columns: 1fr;
+  }
+
+  .gm-brand-name,
+  .gm-brand-sub,
+  .gm-sel {
+    display: none;
+  }
+
+  .gm-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 700;
+    height: var(--sheet-h);
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    box-shadow: var(--shadow-2);
+    transition: height 240ms cubic-bezier(0.32, 0.72, 0, 1);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  #app[data-sheet='peek'] {
+    --sheet-h: var(--sheet-peek);
+  }
+  #app[data-sheet='half'] {
+    --sheet-h: 52dvh;
+  }
+  #app[data-sheet='full'] {
+    --sheet-h: 92dvh;
+  }
+
+  .gm-grab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 22px;
+    flex: none;
+    touch-action: pan-x;
+  }
+
+  .gm-grab span {
+    width: 40px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--line-2);
+  }
+
+  /* 抽屉内：结果优先，筛选其次 */
+  .gm-list {
+    order: -1;
+    flex: 0 0 auto;
+  }
+
+  .gm-sheet-body {
+    overflow-y: auto;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .gm-rail {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--sheet-h);
+    z-index: 650;
+    height: 54px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-1);
+    padding: 4px 12px 6px;
+    transition: bottom 240ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .gm-rail-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1px;
+  }
+
+  .gm-rail-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    min-width: 0;
+  }
+
+  .gm-rail-title {
+    font-size: 11px;
+  }
+
+  .gm-rail-val {
+    font-size: 10px;
+  }
+
+  .gm-rail-density {
+    display: none;
+  }
+
+  #app .gm-rail-density {
+    display: none;
+  }
+
+  .gm-rail-track {
+    padding-bottom: 0;
+  }
+
+  .gm-range-rail {
+    height: 20px;
+  }
+
+  /* 版权条必须常驻可见：手机上挪到地图左上角，避免被抽屉挡住 */
+  .leaflet-bottom.leaflet-right {
+    right: auto;
+    left: 0;
+    bottom: auto;
+    top: 4px;
+  }
+
+  .leaflet-control-attribution {
+    max-width: 66vw;
+    font-size: 8.5px !important;
+    opacity: 0.82;
+    padding: 1px 6px !important;
+  }
+
+  #app[data-sheet='half'] .gm-rail,
+  #app[data-sheet='full'] .gm-rail {
+    display: none;
+  }
+
+  .gm-tools {
+    top: auto;
+    bottom: calc(var(--sheet-h) + 66px);
+  }
+
+  .gm-banner-host {
+    top: auto;
+    bottom: calc(var(--sheet-h) + 66px);
+    left: 8px;
+    right: 8px;
+  }
+
+  .leaflet-control-attribution {
+    max-width: 74vw;
+    font-size: 9px !important;
+  }
+}
+
+/* 横屏小高度：抽屉改侧栏，避免占满 */
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 900px) {
+  .gm-sheet {
+    top: var(--top-h);
+    bottom: 0;
+    left: auto;
+    right: 0;
+    width: 46vw;
+    height: auto !important;
+    border-radius: 0;
+    border-left: 1px solid var(--line);
+    border-top: 0;
+  }
+  .gm-grab {
+    display: none;
+  }
+  .gm-rail {
+    display: none;
+  }
+  #app {
+    grid-template-rows: var(--top-h) 1fr 0;
+  }
+}
+
+/* 降低动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

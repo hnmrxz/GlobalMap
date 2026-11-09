@@ -1,0 +1,106 @@
+/* 基础重置与全局排版 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 滚动条（桌面） */
+.gm-sheet-body::-webkit-scrollbar,
+.gm-cards::-webkit-scrollbar {
+  width: 8px;
+}
+
+.gm-sheet-body::-webkit-scrollbar-thumb,
+.gm-cards::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: 8px;
+}
+
+/* Leaflet 覆写 */
+.leaflet-container {
+  background: #0a101c;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.leaflet-control-attribution {
+  background: rgba(8, 14, 26, 0.72) !important;
+  color: var(--fg-2) !important;
+  font-size: 10px !important;
+  line-height: 1.5 !important;
+  max-width: 92vw;
+  padding: 2px 8px !important;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.leaflet-control-attribution a {
+  color: var(--accent) !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .leaflet-control-attribution {
+    background: rgba(255, 255, 255, 0.86) !important;
+    color: #33415a !important;
+  }
+}
+
+/* 出图叠加层淡入（避免换图闪白）；轻度色彩补偿，抵消 TCI 原图的灰雾感 */
+.gm-scene-img {
+  transition: opacity 220ms ease-out;
+  will-change: opacity;
+  image-rendering: auto;
+  filter: saturate(1.18) contrast(1.06) brightness(1.03);
+}
+
+/* 打印/无 JS 兜底 */
+[hidden] {
+  display: none !important;
+}
