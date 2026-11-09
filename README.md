@@ -132,14 +132,13 @@ npm run interact   # Playwright 真点按：换景 / 改时间 / 仅 2A / 详情
 
 线上地址：**<https://hnmrxz.github.io/GlobalMap/>**
 
-`vite.config.ts` 里 `base: './'`，产物是相对路径，可部署到任意子路径。当前使用 **gh-pages 分支** 发布：
+已接入 **GitHub Actions 自动部署**（[.github/workflows/deploy.yml](.github/workflows/deploy.yml)）：
+推送到 `main` 即触发 → `npm ci` → 类型检查 → 单元测试 → `vite build` → 发布到 Pages。
+也可以在 Actions 页面手动 `workflow_dispatch`。
 
-```bash
-npm run build
-# 把 dist/ 推到 gh-pages 分支（Pages 源设为该分支根目录）
-```
+Pages 源（Repository → Settings → Pages → Build and deployment）：**GitHub Actions**。
 
-如需改成 GitHub Actions 自动部署，把 Pages 源切到 "GitHub Actions" 并添加 `actions/deploy-pages` 工作流即可。
+`vite.config.ts` 里 `base: './'`，产物是相对路径，同一份 `dist/` 也能直接丢到任意 CDN / 对象存储 / 子路径。
 
 ## 已知限制
 

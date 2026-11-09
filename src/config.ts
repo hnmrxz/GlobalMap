@@ -51,6 +51,10 @@ export const config = {
   queryCacheTtlMs: 10 * 60 * 1000,
   queryCacheMax: 8,
   imageCacheBytes: 80 * 1024 * 1024,
+
+  /** 开源仓库（页面入口与"关于"面板展示） */
+  repoUrl: str(env.VITE_REPO_URL, 'https://github.com/hnmrxz/GlobalMap'),
+  repoApi: str(env.VITE_REPO_API, 'https://api.github.com/repos/hnmrxz/GlobalMap'),
 } as const;
 
 export type Config = typeof config;

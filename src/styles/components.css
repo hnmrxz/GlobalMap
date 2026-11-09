@@ -17,6 +17,52 @@
   color: var(--fg);
 }
 
+/* 顶栏 GitHub 入口（锚点元素也走同一套图标样式） */
+a.gm-icon {
+  text-decoration: none;
+}
+
+.gm-icon-repo:hover {
+  color: var(--fg);
+  border-color: var(--line-2);
+}
+
+/* "关于"面板：开源项目区块 */
+.gm-repo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 6px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--bg-2);
+}
+
+.gm-repo-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gm-repo-main b {
+  font-size: 13px;
+}
+
+.gm-repo-stats {
+  font-variant-numeric: tabular-nums;
+}
+
+.gm-repo .gm-btn {
+  flex: none;
+}
+
+.gm-repo-links {
+  margin: -6px 0 12px;
+}
+
 .gm-tool {
   width: 40px;
   height: 40px;
@@ -862,6 +908,27 @@
   content: '↗';
   color: var(--fg-3);
   font-size: 12px;
+}
+
+/* 正文里的行内链接（段落 / 列表内使用，不带卡片与箭头） */
+.gm-link-inline {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+.gm-link-inline:hover {
+  background: none;
+  text-decoration: underline;
+}
+
+.gm-link-inline::after {
+  content: '';
 }
 
 .gm-link-hint {
