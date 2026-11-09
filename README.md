@@ -35,6 +35,12 @@ npm run preview    # 预览构建产物 http://localhost:4173
 
 不想装 Node？直接双击 **`standalone.html`** —— 同一套功能的免构建版本（原生 JS + 本地 Leaflet）。
 
+顶栏的 GitHub 图标直达仓库；「关于」面板里能看到仓库、许可、技术栈，以及说明文档 / 架构设计 / 问题反馈的入口。
+
+<p align="center">
+  <img src="docs/shot-about.png" width="720" alt="关于面板中的开源项目信息">
+</p>
+
 ### 质量闸门
 
 ```bash
